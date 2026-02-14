@@ -1,42 +1,42 @@
 import apiClient from "@/lib/axios";
 
 interface User {
-  id: string;
-  email: string;
-  name: string; // Always good to have optional fields ready
+    id: string;
+    email: string;
+    name: string;
 }
 
 interface AuthResponse {
-  token: string;
-  user: User;
+    token: string;
+    user: User;
 }
 
-interface LoginCredentails{
+interface LoginCredentials {
     email: string;
     password: string;
 }
 
-interface RegisterCredentials extends LoginCredentails {
+interface RegisterCredentials extends LoginCredentials {
     name: string,
 }
 
-const TOKEN_KEY = process.env.TOKEN_KEY || "token";
+const TOKEN_KEY = process.env.NEXT_PUBLIC_TOKEN_KEY || "token";
 
 const tokenStorage = {
-    save: (token: string ) => localStorage.setItem(TOKEN_KEY,token),
-    clear: ()=> localStorage.removeItem(TOKEN_KEY),
-    get: () => typeof window !== "undefined"? localStorage.getItem(TOKEN_KEY) : null,
+    save: (token: string) => localStorage.setItem(TOKEN_KEY, token),
+    clear: () => localStorage.removeItem(TOKEN_KEY),
+    get: () => typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null,
 };
 
 export const authService = {
-    async register(credentails: RegisterCredentials):Promise<User>{
-        const {data} = await apiClient.post<AuthResponse>("/auth/register",credentails);
+    async register(credentials: RegisterCredentials): Promise<User> {
+        const { data } = await apiClient.post<AuthResponse>("/signup", credentials);
         tokenStorage.save(data.token);
         return data.user;
     },
 
-    async login(credentails: LoginCredentails):Promise<User> {
-        const { data } = await apiClient.post<AuthResponse>("/auth/login",credentails);
+    async login(credentials: LoginCredentials): Promise<User> {
+        const { data } = await apiClient.post<AuthResponse>("/login", credentials);
         tokenStorage.save(data.token);
         return data.user;
     },

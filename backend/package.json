@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server.js",
+  "main": "dist/server.ts",
   "scripts": {
     "dev": "DEBUG= nodemon --exec tsx src/server.ts",
     "build": "tsc",
@@ -20,8 +20,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.2.0",
     "@types/pg": "^8.16.0",
-    "@types/puppeteer-core": "^5.4.0",
-    "prisma": "^7.3.0"
+    "@types/puppeteer-core": "^5.4.0"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
@@ -32,6 +31,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.18.0",
+    "prisma": "^7.4.0",
     "puppeteer": "^24.37.2"
   }
 }

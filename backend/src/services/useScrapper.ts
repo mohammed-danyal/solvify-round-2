@@ -27,27 +27,27 @@ export async function useScrapper({ url, prompt }: Scraper): Promise<string> {
 
     await page.goto(url, { waitUntil: "networkidle2" });
 
-   
+
     const inputSelector = "#comment";
     await page.waitForSelector(inputSelector);
-    
-    
+
+
     await page.click(inputSelector);
     await page.type(inputSelector, prompt);
     await page.keyboard.press("Enter");
 
     const responseSelector = ".answer";
-    
+
     await page.waitForFunction(
       (sel) => {
         const el = document.querySelector(sel);
         return el && el.textContent.trim().length > 0;
       },
-      { timeout: 30_000 },
+      { timeout: 3000 },
       responseSelector
     );
 
-    
+
     const answer = await page.evaluate((sel) => {
       const elements = document.querySelectorAll(sel);
       return elements[elements.length - 1]?.textContent?.trim() || "";

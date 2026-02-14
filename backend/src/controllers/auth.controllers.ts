@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import prisma from "../lib/prisma"  
-import {signJwt}  from "../utils/jwt"
+import prisma from "../lib/prisma"
+import { signJwt } from "../utils/jwt"
 
 export const signup = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
@@ -21,7 +21,7 @@ export const signup = async (req: Request, res: Response) => {
     // 4. Generate Token
     const token = signJwt({ userId: user.id, email: user.email });
 
-    res.status(201).json({ token, user: { id: user.id, name: user.name } });
+    res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
   }
@@ -39,8 +39,9 @@ export const login = async (req: Request, res: Response) => {
 
     const token = signJwt({ userId: user.id, email: user.email });
 
-    res.status(200).json({ token, user: { id: user.id, name: user.name } });
+    res.status(200).json({ token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Something went wrong" });
   }
 };

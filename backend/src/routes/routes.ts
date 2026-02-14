@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { signup, login } from "../controllers/auth.controllers";
 import { protect } from "../middlewares/auth.middlewares";
-import  prisma  from "../lib/prisma";
+import { useScrapperController } from "../controllers/scrapper.contoller";
 
 const router = Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
+router.post("/gandalf", protect, useScrapperController);
 
 export default router;
