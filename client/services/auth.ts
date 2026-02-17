@@ -30,15 +30,31 @@ const tokenStorage = {
 
 export const authService = {
     async register(credentials: RegisterCredentials): Promise<User> {
-        const { data } = await apiClient.post<AuthResponse>("/signup", credentials);
-        tokenStorage.save(data.token);
-        return data.user;
+        try {
+            const { data } = await apiClient.post<AuthResponse>("/signup", credentials);
+            if (data.token && data.user) {
+                tokenStorage.save(data.token);
+                return data.user;
+            }
+            throw new Error("Invalid response from server");
+        } catch (error: any) {
+            console.error("Registration error:", error);
+            throw error;
+        }
     },
 
     async login(credentials: LoginCredentials): Promise<User> {
-        const { data } = await apiClient.post<AuthResponse>("/login", credentials);
-        tokenStorage.save(data.token);
-        return data.user;
+        try {
+            const { data } = await apiClient.post<AuthResponse>("/login", credentials);
+            if (data.token && data.user) {
+                tokenStorage.save(data.token);
+                return data.user;
+            }
+            throw new Error("Invalid response from server");
+        } catch (error: any) {
+            console.error("Login error:", error);
+            throw error;
+        }
     },
 
     logout(): void {
