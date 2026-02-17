@@ -33,3 +33,12 @@ model PromptQuery {
   response  String
   createdAt DateTime @default(now())
 }
+
+model Question{
+   id Int @id @default(autoincrement())
+   question String
+   answer String
+   url String
+   level Int
+   createdAt DateTime @default(now())
+}

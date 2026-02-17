@@ -7,6 +7,7 @@ const router = Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
-router.post("/gandalf", protect, useScrapperController);
+router.post("/scrapper", protect, useScrapperController);
+
 
 export default router;
