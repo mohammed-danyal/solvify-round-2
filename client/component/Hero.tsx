@@ -1,36 +1,42 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, CSSProperties } from 'react';
 
 export default function Hero() {
   const [isVisible, setIsVisible] = useState(false);
+  const [particles, setParticles] = useState<Array<{ style: CSSProperties }>>([]);
 
   useEffect(() => {
     setIsVisible(true);
+    setParticles(
+      Array.from({ length: 15 }).map(() => ({
+        style: {
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          animation: `float ${15 + Math.random() * 10}s ease-in-out infinite`,
+          animationDelay: `${Math.random() * 5}s`,
+        } as CSSProperties,
+      }))
+    );
   }, []);
 
   return (
     <section className="min-h-screen bg-[#080805] py-30 flex items-center justify-center px-6 lg:px-8 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#ffd700]/10 rounded-full blur-3xl animate-pulse" 
-             style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#ffd700]/10 rounded-full blur-3xl animate-pulse" 
-             style={{ animationDuration: '6s', animationDelay: '2s' }} />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#ffd700]/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#ffd700]/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDuration: '6s', animationDelay: '2s' }} />
       </div>
 
       {/* Floating particles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[...Array(15)].map((_, i) => (
+        {particles.map((particle, i) => (
           <div
             key={i}
             className="absolute w-1 h-1 bg-[#ffd700] rounded-full opacity-40"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${15 + Math.random() * 10}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 5}s`,
-            }}
+            style={particle.style}
           />
         ))}
       </div>
@@ -57,7 +63,7 @@ export default function Hero() {
           <h2 className="text-2xl md:text-3xl font-bold text-[#ffd700] mb-8">
             Welcome to Round 2: The AI Challenge
           </h2>
-          
+
           <div className="bg-linear-to-br from-[#ffd700]/5 to-transparent border border-[#ffd700]/20 rounded-lg p-8 md:p-10 backdrop-blur-sm mb-8">
             <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-8">
               Get ready for a <span className="text-[#ffd700] font-bold">40-minute interactive AI challenge</span> where you'll work individually to unlock a series of <span className="text-[#ffd700] font-bold">eight digital levels</span> by communicating with an AI system.

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,7 +21,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <div className="flex items-center space-x-3 group cursor-pointer">
+            <Link href="/" className="flex items-center space-x-3 group cursor-pointer">
               <img
                 src="logo.png"
                 alt="Solvify Logo"
@@ -29,7 +30,7 @@ export default function Navbar() {
               <span className="text-2xl font-bold tracking-tight bg-linear-to-r from-white to-[#ffd700] bg-clip-text text-transparent">
                 Solvify
               </span>
-            </div>
+            </Link>
 
             {/* Center Text - Byte Battle 3.0 */}
             <div className="hidden md:block">
@@ -40,13 +41,13 @@ export default function Navbar() {
 
             {/* Auth Buttons - Desktop */}
             <div className="hidden md:flex items-center space-x-4">
-              <button className="px-5 py-2 text-sm font-medium text-white hover:text-[#ffd700] transition-colors duration-300">
+              <Link href="/login" className="px-5 py-2 text-sm font-medium text-white hover:text-[#ffd700] transition-colors duration-300">
                 Sign In
-              </button>
-              <button className="relative px-6 py-2.5 text-sm font-bold text-[#080805] bg-[#ffd700] overflow-hidden group">
+              </Link>
+              <Link href="/signup" className="relative px-6 py-2.5 text-sm font-bold text-[#080805] bg-[#ffd700] overflow-hidden group">
                 <span className="relative z-10 group-hover:text-[#080805]">Sign Up</span>
                 <div className="absolute inset-0 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-              </button>
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -69,12 +70,12 @@ export default function Navbar() {
                 </h2>
               </div>
               <div className="pt-4 space-y-3 border-t border-[#ffd700]/10">
-                <button className="w-full px-5 py-2 text-sm font-medium text-white hover:text-[#ffd700] transition-colors duration-300 text-left">
+                <Link href="/login" className="block w-full px-5 py-2 text-sm font-medium text-white hover:text-[#ffd700] transition-colors duration-300 text-left">
                   Sign In
-                </button>
-                <button className="w-full px-6 py-2.5 text-sm font-bold text-[#080805] bg-[#ffd700] hover:bg-white transition-colors duration-300">
+                </Link>
+                <Link href="/signup" className="block w-full px-6 py-2.5 text-sm font-bold text-[#080805] bg-[#ffd700] hover:bg-white transition-colors duration-300 text-center">
                   Sign Up
-                </button>
+                </Link>
               </div>
             </div>
           </div>
