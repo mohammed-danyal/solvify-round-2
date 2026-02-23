@@ -2,12 +2,23 @@
 
 import { useEffect, useState, CSSProperties } from 'react';
 import { useRouter } from 'next/navigation';
+import { authService } from '@/services/auth';
 
 export default function Hero() {
   const [isVisible, setIsVisible] = useState(false);
   const [particles, setParticles] = useState<Array<{ style: CSSProperties }>>([]);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [isAuth, setIsAuth] = useState(false);
   const router = useRouter()
   useEffect(() => {
+    const user = authService.getCurrentUser();
+    if (user) {
+      setUserName(user.name);
+      setIsAuth(true);
+    } else {
+      setIsAuth(authService.isAuthenticated());
+    }
+
     setIsVisible(true);
     setParticles(
       Array.from({ length: 15 }).map(() => ({
@@ -43,22 +54,6 @@ export default function Hero() {
       </div>
 
       <div className="max-w-5xl mx-auto text-center relative z-10">
-        {/* Congratulations Message */}
-        <div className={`mb-12 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
-          <div className="inline-block mb-4">
-            <span className="px-6 py-2 text-sm font-bold text-[#ffd700] border-2 border-[#ffd700]/50 rounded-full backdrop-blur-sm bg-[#ffd700]/10 animate-pulse">
-              ✦ ROUND 1 COMPLETE ✦
-            </span>
-          </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
-            Congratulations on Clearing
-            <br />
-            <span className="bg-linear-to-r from-[#ffd700] via-yellow-300 to-[#ffd700] bg-clip-text text-transparent bg-size-[200%_100%] animate-gradient">
-              The First Round!
-            </span>
-          </h1>
-        </div>
-
         {/* Round 2 Introduction */}
         <div className={`transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-2xl md:text-3xl font-bold text-[#ffd700] mb-8">
@@ -123,7 +118,7 @@ export default function Hero() {
           </div>
 
           {/* Key Stats */}
-          <div className="grid grid-cols-3 gap-4 md:gap-8 mb-8">
+          <div className="grid grid-cols-2 gap-4 md:gap-8 mb-8">
             <div className="bg-linear-to-br from-[#ffd700]/10 to-transparent border border-[#ffd700]/20 rounded-lg p-4 md:p-6">
               <div className="text-3xl md:text-5xl font-black text-[#ffd700] mb-2">40</div>
               <div className="text-xs md:text-sm text-gray-400 font-medium">Minutes</div>
@@ -132,10 +127,6 @@ export default function Hero() {
               <div className="text-3xl md:text-5xl font-black text-[#ffd700] mb-2">8</div>
               <div className="text-xs md:text-sm text-gray-400 font-medium">Levels</div>
             </div>
-            <div className="bg-linear-to-br from-[#ffd700]/10 to-transparent border border-[#ffd700]/20 rounded-lg p-4 md:p-6">
-              <div className="text-3xl md:text-5xl font-black text-[#ffd700] mb-2">1</div>
-              <div className="text-xs md:text-sm text-gray-400 font-medium">Winner</div>
-            </div>
           </div>
 
           {/* CTA */}
@@ -143,10 +134,13 @@ export default function Hero() {
             <p className="text-gray-400 text-lg mb-6">
               Ready to prove your AI mastery?
             </p>
-            <button onClick={() => { router.push(`/1`) }} className="group relative px-10 py-4 text-lg font-bold text-[#080805] bg-[#ffd700] overflow-hidden transition-all duration-300 hover:scale-105">
+            <button
+              onClick={() => { router.push(`/1`) }}
+              disabled={!isAuth}
+              className={`group relative px-10 py-4 text-lg font-bold text-[#080805] bg-[#ffd700] overflow-hidden transition-all duration-300 ${isAuth ? 'hover:scale-105 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
               <span className="relative z-10 flex items-center justify-center gap-2">
                 Enter Round 2
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={`w-5 h-5 transition-transform duration-300 ${isAuth ? 'group-hover:translate-x-1' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </span>
