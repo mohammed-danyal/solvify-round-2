@@ -37,7 +37,11 @@ export async function useScrapper({ url, prompt, userId }: Scraper): Promise<str
 
     if (process.env.BAAS_WS_ENDPOINT) {
       try {
-        const wsUrl = new URL(process.env.BAAS_WS_ENDPOINT);
+        let endpoint = process.env.BAAS_WS_ENDPOINT;
+        if (!endpoint.startsWith('ws://') && !endpoint.startsWith('wss://')) {
+          endpoint = `wss://${endpoint}`;
+        }
+        const wsUrl = new URL(endpoint);
         // Browserless session persistence & keepalive (e.g. 5 minutes)
         wsUrl.searchParams.set("sessionId", userId);
         wsUrl.searchParams.set("keepalive", "300000");
@@ -63,10 +67,13 @@ export async function useScrapper({ url, prompt, userId }: Scraper): Promise<str
       page = await browser!.newPage();
     }
 
-    // Standard bandwidth optimization
+    // Standard bandwidth & tracking optimization
     await page.setRequestInterception(true);
+    const blockedDomains = ['google-analytics.com', 'googletagmanager.com', 'sentry.io'];
     page.on("request", (req: HTTPRequest) => {
-      if (["image", "font", "media", "stylesheet"].includes(req.resourceType())) {
+      const reqUrl = req.url();
+      const isBlocked = blockedDomains.some(domain => reqUrl.includes(domain));
+      if (isBlocked || ["image", "font", "media", "stylesheet", "other"].includes(req.resourceType())) {
         req.abort();
       } else {
         req.continue();
@@ -78,11 +85,9 @@ export async function useScrapper({ url, prompt, userId }: Scraper): Promise<str
     const urlObj = new URL(url);
     const slug = urlObj.pathname.replace('/', '') || 'baseline';
 
-    // First go to root to initialize the domain context for LocalStorage
-    await page.goto("https://gandalf.lakera.ai/", { waitUntil: "domcontentloaded", timeout: 30000 });
-
-    // Inject level progression into LocalStorage so Gandalf doesn't block direct access
-    await page.evaluate((levelSlug) => {
+    // Inject level progression into LocalStorage BEFORE the page even executes its React scripts.
+    // This entirely removes the need for a secondary page route!
+    await page.evaluateOnNewDocument((levelSlug) => {
       localStorage.setItem("last_normal_level", levelSlug);
       localStorage.setItem("last_level", levelSlug);
       localStorage.setItem("default_max_level", "8"); // Max unlock
@@ -92,14 +97,38 @@ export async function useScrapper({ url, prompt, userId }: Scraper): Promise<str
     // 'domcontentloaded' prevents hanging on infinite websockets/tracking scripts
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
 
-    const inputSelector = "#comment";
-    console.log(`Waiting for input selector: ${inputSelector}`);
+    const inputSelector = "#comment, textarea, input[type='text']";
+    console.log(`Waiting for input selector...`);
     await page.waitForSelector(inputSelector, { timeout: 10000 });
 
-    console.log("Typing prompt...");
-    await page.click(inputSelector);
-    await page.type(inputSelector, prompt);
-    await page.keyboard.press("Enter");
+    console.log("Instantly injecting prompt...");
+    // Direct DOM text injection bypassing human typing delays
+    await page.evaluate((sel, text) => {
+      const el = document.querySelector(sel) as HTMLInputElement | HTMLTextAreaElement;
+      if (el) {
+        // Native setter overrides React's event listener blocks
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          window.HTMLInputElement.prototype, "value"
+        )?.set;
+        const nativeTextAreaValueSetter = Object.getOwnPropertyDescriptor(
+          window.HTMLTextAreaElement.prototype, "value"
+        )?.set;
+
+        if (el.tagName === 'TEXTAREA' && nativeTextAreaValueSetter) {
+          nativeTextAreaValueSetter.call(el, text);
+        } else if (nativeInputValueSetter) {
+          nativeInputValueSetter.call(el, text);
+        } else {
+          el.value = text;
+        }
+
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }, inputSelector, prompt);
+
+    // CLICK THE SUBMIT BUTTON directly because #comment is a textarea now, Enter just adds a newline!
+    await page.click('button[type="submit"]');
 
     const responseSelector = ".answer";
     console.log(`Waiting for response selector: ${responseSelector}`);
@@ -109,7 +138,7 @@ export async function useScrapper({ url, prompt, userId }: Scraper): Promise<str
       (sel: string) => {
         const el = document.querySelector(sel);
         const errorEl = document.querySelector('.text-red-500'); // Gandalf error messages are often red
-        if (errorEl && errorEl.textContent?.includes("cannot be the same")) return true;
+        if (errorEl && errorEl.textContent?.trim().length) return true;
         return el && el.textContent.trim().length > 0;
       },
       { timeout: 30000 },
@@ -118,7 +147,8 @@ export async function useScrapper({ url, prompt, userId }: Scraper): Promise<str
 
     const answer = await page.evaluate((sel: string) => {
       const errorEl = document.querySelector('.text-red-500');
-      if (errorEl && errorEl.textContent?.includes("cannot be the same")) {
+      // If there's an error message block (e.g. "Prompt must be at least 10 characters long")
+      if (errorEl && errorEl.textContent?.trim().length) {
         return "Error: " + errorEl.textContent.trim();
       }
       const elements = document.querySelectorAll(sel);
