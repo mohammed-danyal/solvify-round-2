@@ -43,7 +43,7 @@ export default function LoginIn() {
             if (err.response) {
                 errorMessage = err.response.data?.message || err.message || errorMessage;
             } else if (err.request) {
-                errorMessage = 'Unable to connect to backend server. Please ensure the backend is running on http://localhost:5000';
+                errorMessage = 'Unable to connect to backend server. Please ensure the backend';
             } else {
                 errorMessage = err.message || errorMessage;
             }
