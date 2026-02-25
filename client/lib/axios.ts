@@ -3,10 +3,7 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios"
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const TOKEN_KEY = process.env.NEXT_PUBLIC_TOKEN_KEY || "token";
 
-// Log API URL in development
-if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
-    console.log("🔗 API Base URL:", API_URL);
-}
+
 
 const apiClient: AxiosInstance = axios.create({
     baseURL: API_URL,
@@ -24,10 +21,7 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
             config.headers.Authorization = `Bearer ${token}`;
         }
 
-        // Log request in development
-        if (process.env.NODE_ENV === "development") {
-            console.log(`📤 ${config.method?.toUpperCase()} ${config.url}`, config.data || "");
-        }
+
     }
     return config;
 },

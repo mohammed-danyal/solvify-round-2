@@ -5,7 +5,6 @@ interface Scraper {
 }
 
 export async function useScrapper({ url, prompt, userId }: Scraper): Promise<string> {
-  console.log(`Starting headless-bypassed scrapper for user ${userId}...`);
 
   try {
     // Extract the level slug from the target URL (e.g., 'do-not-tell' or 'baseline')
@@ -16,7 +15,6 @@ export async function useScrapper({ url, prompt, userId }: Scraper): Promise<str
     form.append('defender', slug);
     form.append('prompt', prompt);
 
-    console.log(`Sending direct Lakera API request for ${slug}...`);
     const t1 = Date.now();
 
     // Native Node.js Fetch to bypass Browser completely (No chromium memory limits and 3x faster response)
@@ -37,8 +35,6 @@ export async function useScrapper({ url, prompt, userId }: Scraper): Promise<str
 
     const data = await response.json();
     const t2 = Date.now();
-
-    console.log(`✅ Got response for ${userId} in ${t2 - t1}ms!`);
 
     // The API returns { answer: "...", defender: "...", prompt: "..." }
     if (data && typeof data.answer === 'string') {

@@ -12,7 +12,7 @@ export const getQuestion = async (req: Request, res: Response) => {
         res.status(200).json({ question })
     }
     catch (error) {
-        console.log(error);
+        console.error("Get Question Error:", error);
         res.status(500).json({ message: "Something went wrong" })
     }
 }
