@@ -5,8 +5,7 @@
   "main": "dist/server.ts",
   "scripts": {
     "dev": "nodemon -e ts,js --exec tsx src/server.ts",
-    "build": "prisma generate && prisma migrate deploy && next build",
-    ,
+    "build": "prisma generate && prisma migrate deploy && npm run build",
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
